@@ -35,10 +35,6 @@ public class ParkourRun {
      * This value is -1 until the run is completed.
      */
     private long endTime = -1;
-    /**
-     * The number of failures the runner had during this run.
-     */
-    private int fails;
 
     /**
      * Starts a run with a runner. Sets the start time
@@ -77,10 +73,6 @@ public class ParkourRun {
         objective.getScore(entryName).setScore(Integer.MAX_VALUE - this.getRuntime());
     }
 
-    public void fail() {
-        fails++;
-    }
-
     public void endRun(long endTime) {
         this.endTime = endTime;
     }
@@ -102,31 +94,6 @@ public class ParkourRun {
             return (int) (startTime - endTime);
         } else {
             return -1;
-        }
-    }
-
-
-
-    public static class Serializer implements JsonSerializer<ParkourRun> {
-
-        public static final Gson GSON = new GsonBuilder()
-                .setPrettyPrinting()
-                .disableHtmlEscaping()
-                .registerTypeAdapter(ParkourRun.class, new Serializer())
-                .create();
-
-        @Override
-        public JsonElement serialize(ParkourRun src, Type typeOfSrc, JsonSerializationContext context) {
-            if (!src.isCompleted()) {
-                return null;
-            }
-            JsonObject json = new JsonObject();
-            json.addProperty("runner", src.runnerName);
-            json.addProperty("arena", src.runningFor.getName());
-            json.addProperty("startTime", src.startTime);
-            json.addProperty("endTime", src.endTime);
-            json.addProperty("fails", src.fails);
-            return json;
         }
     }
 
