@@ -12,6 +12,12 @@ import org.bukkit.entity.Player;
 
 public class ArenaCommand implements CommandExecutor {
 
+    private final TnsParkour PLUGIN;
+
+    public ArenaCommand(TnsParkour plugin) {
+        this.PLUGIN = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -37,7 +43,7 @@ public class ArenaCommand implements CommandExecutor {
     }
 
     private boolean removeArena(CommandSender sender, String arenaName) {
-        ParkourArena arena = TnsParkour.ARENAS.remove(arenaName);
+        ParkourArena arena = PLUGIN.getArenaManager().remove(arenaName);
         if (arena != null) {
             sender.sendMessage(ChatColor.GREEN + "Sucessfully removed arena '" + arenaName + "'!");
             return true;
@@ -48,10 +54,10 @@ public class ArenaCommand implements CommandExecutor {
     }
 
     private boolean setEndLocation(CommandSender sender, String arenaName) {
-        if (TnsParkour.ARENAS.get(arenaName) != null && sender instanceof Player) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) != null && sender instanceof Player) {
             Player player = (Player) sender;
 
-            ParkourArena arena = TnsParkour.ARENAS.get(arenaName);
+            ParkourArena arena = PLUGIN.getArenaManager().getArena(arenaName);
             arena.setEndLocation(player.getLocation());
 
             player.sendMessage(ChatColor.GREEN + "Successfully set the end location of arena '"
@@ -60,7 +66,7 @@ public class ArenaCommand implements CommandExecutor {
             return true;
         }
 
-        if (TnsParkour.ARENAS.get(arenaName) == null) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) == null) {
             sender.sendMessage(ChatColor.RED + "Error: Specified arena '" + arenaName
                     + "' does not exist!");
         }
@@ -73,10 +79,10 @@ public class ArenaCommand implements CommandExecutor {
     }
 
     private boolean setStartLocation(CommandSender sender, String arenaName) {
-        if (TnsParkour.ARENAS.get(arenaName) != null && sender instanceof Player) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) != null && sender instanceof Player) {
             Player player = (Player) sender;
 
-            ParkourArena arena = TnsParkour.ARENAS.get(arenaName);
+            ParkourArena arena = PLUGIN.getArenaManager().getArena(arenaName);
             arena.setStartLocation(player.getLocation());
 
             player.sendMessage(ChatColor.GREEN + "Successfully set the start location of arena '"
@@ -85,7 +91,7 @@ public class ArenaCommand implements CommandExecutor {
             return true;
         }
 
-        if (TnsParkour.ARENAS.get(arenaName) == null) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) == null) {
             sender.sendMessage(ChatColor.RED + "Error: Specified arena '" + arenaName
                     + "' does not exist!");
         }
@@ -99,9 +105,9 @@ public class ArenaCommand implements CommandExecutor {
 
     private boolean defineArena(CommandSender sender, String arenaName) {
 
-        if (TnsParkour.ARENAS.containsKey(arenaName)) {
+        if (PLUGIN.getArenaManager().arenaExists(arenaName)) {
             ParkourArena arena = new ParkourArena(arenaName);
-            TnsParkour.ARENAS.put(arenaName, arena);
+            PLUGIN.getArenaManager().addArena(arena);
 
             sender.sendMessage(ChatColor.GREEN + "Successfully created arena '" + arenaName + "'! " +
                     "You must now define the start and end points of the arena with /tnsparkour "

@@ -1,20 +1,11 @@
 package com.github.thedeathlycow.tnsparkour;
 
-import com.google.gson.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-
-import java.lang.reflect.Type;
 
 /**
  * Stores information relating to a parkour run,
  * such as the runner's name, their start time,
  * end time, and number of failures.
- *
  */
 public class ParkourRun {
 
@@ -40,7 +31,7 @@ public class ParkourRun {
      * Starts a run with a runner. Sets the start time
      * to the system's current time, in milliseconds.
      *
-     * @param runner The player running.
+     * @param runner     The player running.
      * @param runningFor The arena the player is running for.
      */
     public ParkourRun(Player runner, ParkourArena runningFor) {
@@ -52,10 +43,9 @@ public class ParkourRun {
      * Specifying the start time may lead to greater
      * consistency, though it is optional.
      *
-     *
-     * @param runner The player running.
+     * @param runner     The player running.
      * @param runningFor The arena the player is running for.
-     * @param startTime The time at which the player began running.
+     * @param startTime  The time at which the player began running.
      */
     public ParkourRun(Player runner, ParkourArena runningFor, long startTime) {
         this.runnerName = runner.getName();
@@ -64,34 +54,60 @@ public class ParkourRun {
     }
 
     /**
-     * Adds this run to the scoreboard objective given.
-     *
-     * @param objective Objective to add this run to.
+     * Adds this run to this run's scoreboard.
      */
-    public void addToObjective(Objective objective) {
+    public void addToScoreboard() {
         String entryName = String.format("%s - %.3fs", runnerName, this.getRuntime() / 1000.0);
-        objective.getScore(entryName).setScore(Integer.MAX_VALUE - this.getRuntime());
+        runningFor.addScore(entryName, this.getRuntime());
     }
 
+    /**
+     * Ends the run at a specific time.
+     * <p>
+     * If the end time needs to be used for anything else,
+     * this may be the better method to use.
+     *
+     * @param endTime The UNIX epoch time (in milliseconds) at which the
+     *                run ended.
+     */
     public void endRun(long endTime) {
         this.endTime = endTime;
     }
 
+    /**
+     * Ends the run at the current time.
+     */
     public void endRun() {
         endRun(System.currentTimeMillis());
     }
 
+    /**
+     * Returns the name of the runner.
+     *
+     * @return The name of the runner
+     */
     public String getRunnerName() {
         return runnerName;
     }
 
+    /**
+     * Determines whether or not this run has been completed.
+     *
+     * @return Returns true if the run has been completed, false otherwise.
+     */
     public boolean isCompleted() {
-        return endTime != -1;
+        return endTime >= 0;
     }
 
+    /**
+     * Gets the time it took this run to complete.
+     *
+     * @return Returns how long it took for this run to complete,
+     * in milliseconds. If the run has not been completed, returns -1.
+     */
     public int getRuntime() {
         if (this.isCompleted()) {
-            return (int) (startTime - endTime);
+            return (int) (endTime - startTime);
         } else {
             return -1;
         }

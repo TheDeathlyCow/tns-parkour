@@ -1,9 +1,16 @@
 package com.github.thedeathlycow.tnsparkour;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -11,12 +18,24 @@ public final class TnsParkour extends JavaPlugin {
 
     public static final String NAME = "TNS-Parkour";
 
-    public static final Map<String, ParkourArena> ARENAS = new HashMap<>();
+    private final ArenaManager ARENA_MANAGER = new ArenaManager();
+    private static String filePath = "arenas";
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager()
                 .registerEvents(new TnsParkourListener(this), this);
+
+        FileConfiguration config = this.getConfig();
+        config.addDefault("arenas-file-location", filePath);
+        filePath = config.getString("arenas-file-location");
+
+        try {
+            ARENA_MANAGER.readArenas(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error reading arenas file!");
+        }
     }
 
     @Override
@@ -24,19 +43,7 @@ public final class TnsParkour extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public ParkourArena getArenaOfEndLocation(Location location) {
-        Map.Entry<String, ParkourArena> result =  ARENAS.entrySet().stream()
-                .filter((entry) -> entry.getValue().getEndLocation().equals(location))
-                .findFirst().orElse(null);
-
-        return result != null ? result.getValue() : null;
-    }
-
-    public ParkourArena getArenaOfStartLocation(Location location) {
-        Map.Entry<String, ParkourArena> result =  ARENAS.entrySet().stream()
-                .filter((entry) -> entry.getValue().getStartLocation().equals(location))
-                .findFirst().orElse(null);
-
-        return result != null ? result.getValue() : null;
+    public ArenaManager getArenaManager() {
+        return ARENA_MANAGER;
     }
 }

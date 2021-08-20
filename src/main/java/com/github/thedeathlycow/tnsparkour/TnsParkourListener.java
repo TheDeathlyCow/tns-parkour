@@ -19,18 +19,10 @@ public class TnsParkourListener implements Listener {
 
     private final TnsParkour PLUGIN;
     private final Map<Player, ParkourRun> inProgressRuns;
-    private final Scoreboard runScoreboard;
 
     public TnsParkourListener(TnsParkour plugin) {
         this.PLUGIN = plugin;
         inProgressRuns = new HashMap<>();
-        runScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        runScoreboard.registerNewObjective(
-                "runtimes",
-                "dummy",
-                ChatColor.YELLOW + "" + ChatColor.BOLD +
-                        "=== Parkour Leaderbard ==="
-        );
     }
 
     public void activeTrigger(PlayerInteractEvent event) {
@@ -38,8 +30,8 @@ public class TnsParkourListener implements Listener {
             Block steppedOn = event.getClickedBlock();
             assert steppedOn != null;
             Location intrLocation = steppedOn.getLocation();
-            ParkourArena startArena = PLUGIN.getArenaOfStartLocation(intrLocation);
-            ParkourArena endArena = PLUGIN.getArenaOfEndLocation(intrLocation);
+            ParkourArena startArena = PLUGIN.getArenaManager().getArenaOfStartLocation(intrLocation);
+            ParkourArena endArena = PLUGIN.getArenaManager().getArenaOfEndLocation(intrLocation);
             if (startArena != null) {
                 startRun(event.getPlayer(), startArena, intrLocation);
             } else if (endArena != null) {
@@ -57,10 +49,7 @@ public class TnsParkourListener implements Listener {
         ParkourRun run = inProgressRuns.remove(player);
         if (run != null) {
             run.endRun();
-            Objective objective = runScoreboard.getObjective("runtimes");
-            if (objective != null) {
-                run.addToObjective(objective);
-            }
+            run.addToScoreboard();
         }
     }
 
