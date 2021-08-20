@@ -5,3 +5,9 @@ api-version: 1.17
 authors: [ TheDeathlyCow ]
 description: Provides a basic framework for parkour on TNS, and integrates with modular minigames datapack.
 website: github.com/thedeathlycow/tns-parkour
+
+commands:
+  tnsparkour:
+    description: Create and delete parkour arenas.
+    usage: /tnsparkour <define | setStartLocation | setEndLocation | delete> <arenaName>
+    permission: tnsparkour.modifyarenas

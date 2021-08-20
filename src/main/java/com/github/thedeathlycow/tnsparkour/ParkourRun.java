@@ -90,6 +90,10 @@ public class ParkourRun {
         return runnerName;
     }
 
+    public ParkourArena getArena() {
+        return runningFor;
+    }
+
     /**
      * Determines whether or not this run has been completed.
      *

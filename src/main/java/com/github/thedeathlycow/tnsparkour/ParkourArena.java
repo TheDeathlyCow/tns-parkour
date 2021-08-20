@@ -31,7 +31,7 @@ public class ParkourArena {
         this.SCOREBOARD.registerNewObjective(
                 OBJECTIVE_NAME,
                 "dummy",
-                ChatColor.YELLOW + "=== Run Times ==="
+                ChatColor.YELLOW + String.format("=== %s Leaderboard ===", name)
         );
         Objective objective = this.SCOREBOARD.getObjective(OBJECTIVE_NAME);
         assert objective != null;
@@ -58,11 +58,16 @@ public class ParkourArena {
         return endLocation;
     }
 
+    public Scoreboard getScoreboard() {
+        return SCOREBOARD;
+    }
+
     public void addScore(String player, Integer score) {
+        SCORES.put(player, score);
+        System.out.println(String.format("Run: %s : %d", player, score));
         Objective objective = SCOREBOARD.getObjective(OBJECTIVE_NAME);
         assert objective != null;
         objective.getScore(player).setScore(Integer.MAX_VALUE - score);
-        SCORES.put(player, score);
     }
 
     public void onPlayerJoin(Player player) {
@@ -98,7 +103,7 @@ public class ParkourArena {
                     new TypeToken<Map<String, Integer>>(){
                     }.getType()
             );
-            scores.forEach(arena.SCORES::put);
+            scores.forEach(arena::addScore);
 
             return arena;
         }
@@ -118,6 +123,7 @@ public class ParkourArena {
                     }.getType()
             ));
 
+            System.out.println(src.SCORES);
             jsonObject.add("scores", context.serialize(
                     src.SCORES, new TypeToken<Map<String, Integer>>() {
                     }.getType()
