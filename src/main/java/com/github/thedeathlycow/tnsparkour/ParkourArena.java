@@ -18,6 +18,7 @@ import java.util.Objects;
 public class ParkourArena {
 
     private final String NAME;
+    private Location entrance;
     private Location startLocation;
     private Location endLocation;
     private final Map<String, Integer> SCORES = new HashMap<>();
@@ -38,12 +39,16 @@ public class ParkourArena {
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
+    public void setEntrance(Location entrance) {
+        this.entrance = TnsParkour.getIntLocation(entrance);
+    }
+
     public void setStartLocation(Location startLocation) {
-        this.startLocation = startLocation;
+        this.startLocation = TnsParkour.getIntLocation(startLocation);
     }
 
     public void setEndLocation(Location endLocation) {
-        this.endLocation = endLocation;
+        this.endLocation = TnsParkour.getIntLocation(endLocation);
     }
 
     public String getName() {
@@ -58,16 +63,31 @@ public class ParkourArena {
         return endLocation;
     }
 
-    public Scoreboard getScoreboard() {
-        return SCOREBOARD;
+    public Location getEntrance() {
+        return entrance;
     }
 
     public void addScore(String player, Integer score) {
         SCORES.put(player, score);
-        System.out.println(String.format("Run: %s : %d", player, score));
         Objective objective = SCOREBOARD.getObjective(OBJECTIVE_NAME);
         assert objective != null;
-        objective.getScore(player).setScore(Integer.MAX_VALUE - score);
+        String order = getSidebarOrder(score);
+        objective.getScore(order + player).setScore(0);
+    }
+
+    /**
+     * Returns a non-rendered prefix that describes the order in which
+     * the score should appear in the sidebar.
+     *
+     * Based on a resource by Nathan Franke <natfra@pm.me>, available
+     * at https://www.spigotmc.org/threads/how-to-make-an-all-zeros-sidebar.465666/
+     *
+     * @param score The score to sort the scoreboard by.
+     * @return Returns a non-rendered string that describes the order in which
+     * the given score should appear on the sidebar.
+     */
+    private String getSidebarOrder(int score) {
+        return "\u00A7" + (char) (score) + ChatColor.RESET;
     }
 
     public void onPlayerJoin(Player player) {
@@ -94,13 +114,19 @@ public class ParkourArena {
                     new TypeToken<Map<String, Object>>() {
                     }.getType()
             ));
+            Location entrance = Location.deserialize(gson.fromJson(
+                    object.get("entrance").getAsJsonObject(),
+                    new TypeToken<Map<String, Object>>() {
+                    }.getType()
+            ));
 
             arena.setStartLocation(startLoc);
             arena.setEndLocation(endLoc);
+            arena.setEntrance(entrance);
 
             Map<String, Integer> scores = gson.fromJson(
                     object.get("scores").getAsJsonObject(),
-                    new TypeToken<Map<String, Integer>>(){
+                    new TypeToken<Map<String, Integer>>() {
                     }.getType()
             );
             scores.forEach(arena::addScore);
@@ -119,6 +145,10 @@ public class ParkourArena {
                     }.getType()
             ));
             jsonObject.add("endLocation", context.serialize(
+                    src.endLocation.serialize(), new TypeToken<Map<String, Object>>() {
+                    }.getType()
+            ));
+            jsonObject.add("entrance", context.serialize(
                     src.endLocation.serialize(), new TypeToken<Map<String, Object>>() {
                     }.getType()
             ));

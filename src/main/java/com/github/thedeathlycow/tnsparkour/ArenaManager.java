@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class ArenaManager {
 
@@ -89,19 +90,22 @@ public class ArenaManager {
         writer.close();
     }
 
-    public ParkourArena getArenaOfEndLocation(Location location) {
-        Map.Entry<String, ParkourArena> result = ARENAS.entrySet().stream()
-                .filter((entry) -> entry.getValue().getEndLocation().equals(location))
-                .findFirst().orElse(null);
+    public ParkourArena getArenaOfEntrace(Location location) {
+        return getArenaAtLocation((entry -> entry.getValue().getEntrance().equals(location)));
+    }
 
-        return result != null ? result.getValue() : null;
+    public ParkourArena getArenaOfEndLocation(Location location) {
+        return getArenaAtLocation((entry) -> entry.getValue().getEndLocation().equals(location));
     }
 
     public ParkourArena getArenaOfStartLocation(Location location) {
-        Map.Entry<String, ParkourArena> result = ARENAS.entrySet().stream()
-                .filter((entry) -> entry.getValue().getStartLocation().equals(location))
-                .findFirst().orElse(null);
+        return getArenaAtLocation((entry) -> entry.getValue().getStartLocation().equals(location));
+    }
 
+    public ParkourArena getArenaAtLocation(Predicate<Map.Entry<String, ParkourArena>> filter) {
+        Map.Entry<String, ParkourArena> result = ARENAS.entrySet().stream()
+                .filter(filter)
+                .findFirst().orElse(null);
         return result != null ? result.getValue() : null;
     }
 

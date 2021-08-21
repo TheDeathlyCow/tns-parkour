@@ -1,6 +1,7 @@
 package com.github.thedeathlycow.tnsparkour;
 
 import com.github.thedeathlycow.tnsparkour.commands.ArenaCommand;
+import com.github.thedeathlycow.tnsparkour.commands.ParkourSubcommand;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +21,7 @@ public final class TnsParkour extends JavaPlugin {
     public void onEnable() {
         this.getServer().getPluginManager()
                 .registerEvents(new TnsParkourListener(this), this);
-
+        ParkourSubcommand.PLUGIN = this;
         try {
             if (!this.getDataFolder().exists()) {
                 this.getDataFolder().mkdirs();
