@@ -16,6 +16,8 @@ public enum ParkourSubcommand {
     SETENDLOCATION(ParkourSubcommand::setEndLocation),
     SETENTRANCE(ParkourSubcommand::setEntrance),
     DELETE(ParkourSubcommand::removeArena),
+    ADDCHECKPOINT(ParkourSubcommand::addCheckpoint),
+    REMOVECHECKPOINT(ParkourSubcommand::removeCheckpoint),
     JOIN(ParkourSubcommand::joinPlayer);
 
     public final Executor executor;
@@ -51,6 +53,63 @@ public enum ParkourSubcommand {
             sender.sendMessage(ChatColor.RED + "Error: The arena '" + arenaName + "' already exists!");
             return false;
         }
+    }
+
+    private static boolean removeCheckpoint(CommandSender sender, String arenaName) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) != null && sender instanceof Player) {
+            Player player = (Player) sender;
+
+            ParkourArena arena = PLUGIN.getArenaManager().getArena(arenaName);
+
+            Location loc = player.getLocation();
+            boolean removed = arena.removeCheckpoint(loc);
+
+            if (removed) {
+                player.sendMessage(ChatColor.GREEN + "Successfully removed the checkpoint from the arena '"
+                        + arenaName + "' at your current position!");
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            } else {
+                player.sendMessage(ChatColor.RED + "There is no checkpoint that belongs to the arena '"
+                        + arenaName + "' at your current position!");
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 0.7f);
+            }
+
+            return true;
+        }
+        if (PLUGIN.getArenaManager().getArena(arenaName) == null) {
+            sender.sendMessage(ChatColor.RED + "Error: Specified arena '" + arenaName
+                    + "' does not exist!");
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED + "You must be logged in to define locations!");
+        }
+        return false;
+    }
+
+    private static boolean addCheckpoint(CommandSender sender, String arenaName) {
+        if (PLUGIN.getArenaManager().getArena(arenaName) != null && sender instanceof Player) {
+            Player player = (Player) sender;
+
+            ParkourArena arena = PLUGIN.getArenaManager().getArena(arenaName);
+
+            Location loc = player.getLocation();
+            arena.addCheckpoint(loc);
+
+            player.sendMessage(ChatColor.GREEN + "Successfully added a checkpoint to arena '"
+                    + arenaName + "' at your current position!");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            return true;
+        }
+        if (PLUGIN.getArenaManager().getArena(arenaName) == null) {
+            sender.sendMessage(ChatColor.RED + "Error: Specified arena '" + arenaName
+                    + "' does not exist!");
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED + "You must be logged in to define locations!");
+        }
+        return false;
     }
 
     private static boolean setStartLocation(CommandSender sender, String arenaName) {
@@ -140,6 +199,20 @@ public enum ParkourSubcommand {
             sender.sendMessage(ChatColor.RED + "Error: Unable to remove arena '" + arenaName + "'.");
             return false;
         }
+    }
+
+    public static boolean setHub(CommandSender sender) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            Location loc = TnsParkour.getIntLocation(player.getLocation());
+            PLUGIN.setHubLocation(loc);
+            player.sendMessage(ChatColor.GREEN + "Successfully set the hub of the server "
+                    + " to your current position!");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            return true;
+        }
+        sender.sendMessage(ChatColor.RED + "You must be logged in to define locations!");
+        return false;
     }
 
     private static boolean joinPlayer(CommandSender sender, String arenaName) {

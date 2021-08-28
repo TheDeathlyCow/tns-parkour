@@ -90,6 +90,10 @@ public class ArenaManager {
         writer.close();
     }
 
+    public ParkourArena getArenaOfCheckpoint(Location location) {
+        return getArenaAtLocation((entry -> entry.getValue().isCheckpoint(location)));
+    }
+
     public ParkourArena getArenaOfEntrace(Location location) {
         return getArenaAtLocation((entry -> entry.getValue().getEntrance().equals(location)));
     }

@@ -11,9 +11,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ParkourArena {
 
@@ -21,6 +19,7 @@ public class ParkourArena {
     private Location entrance;
     private Location startLocation;
     private Location endLocation;
+    private final List<Location> checkPoints = new ArrayList<>();
     private final Map<String, Integer> SCORES = new HashMap<>();
     private transient final Scoreboard SCOREBOARD;
     private static transient final String OBJECTIVE_NAME = "runtimes";
@@ -41,6 +40,24 @@ public class ParkourArena {
 
     public void setEntrance(Location entrance) {
         this.entrance = TnsParkour.getIntLocation(entrance);
+    }
+
+    public boolean isCheckpoint(Location location) {
+        return checkPoints.stream()
+                .filter(checkPoint -> checkPoint.equals(location))
+                .findFirst().orElse(null) != null;
+    }
+
+    public void addCheckpoint(Location location) {
+        checkPoints.add(TnsParkour.getIntLocation(location));
+    }
+
+    public boolean removeCheckpoint(Location location) {
+        return checkPoints.remove(TnsParkour.getIntLocation(location));
+    }
+
+    public List<Location> getCheckPoints() {
+        return Collections.unmodifiableList(checkPoints);
     }
 
     public void setStartLocation(Location startLocation) {
@@ -103,6 +120,7 @@ public class ParkourArena {
                     .create();
             JsonObject object = json.getAsJsonObject();
             String name = object.get("name").getAsString();
+
             ParkourArena arena = new ParkourArena(name);
             Location startLoc = Location.deserialize(gson.fromJson(
                     object.get("startLocation").getAsJsonObject(),
@@ -131,6 +149,19 @@ public class ParkourArena {
             );
             scores.forEach(arena::addScore);
 
+            JsonArray checkPoints = object.get("checkPoints").getAsJsonArray();
+            checkPoints.forEach(
+                    (jsonElement -> {
+                        Map<String, Object> locMap = gson.fromJson(
+                                jsonElement.getAsJsonObject(),
+                                new TypeToken<Map<String, Object>>() {
+                                }.getType()
+                        );
+                        Location location = Location.deserialize(locMap);
+                        arena.addCheckpoint(location);
+                    })
+            );
+
             return arena;
         }
 
@@ -149,13 +180,21 @@ public class ParkourArena {
                     }.getType()
             ));
             jsonObject.add("entrance", context.serialize(
-                    src.endLocation.serialize(), new TypeToken<Map<String, Object>>() {
+                    src.entrance.serialize(), new TypeToken<Map<String, Object>>() {
                     }.getType()
             ));
 
-            System.out.println(src.SCORES);
             jsonObject.add("scores", context.serialize(
                     src.SCORES, new TypeToken<Map<String, Integer>>() {
+                    }.getType()
+            ));
+
+            List<Map<String, Object>> checkpoints = new ArrayList<>();
+            src.checkPoints.forEach(
+                    (location -> checkpoints.add(location.serialize()))
+            );
+            jsonObject.add("checkPoints", context.serialize(
+                    checkpoints, new TypeToken<List<Map<String, Object>>>() {
                     }.getType()
             ));
 

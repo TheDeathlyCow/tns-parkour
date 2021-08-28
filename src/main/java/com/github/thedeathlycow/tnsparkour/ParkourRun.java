@@ -1,5 +1,8 @@
 package com.github.thedeathlycow.tnsparkour;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 /**
@@ -13,6 +16,7 @@ public class ParkourRun {
      * The name of the runner.
      */
     private final String runnerName;
+    private final Player runner;
     /**
      * The arena the runner is running.
      */
@@ -26,6 +30,8 @@ public class ParkourRun {
      * This value is -1 until the run is completed.
      */
     private long endTime = -1;
+
+    private Location lastCheckpoint = null;
 
     /**
      * Starts a run with a runner. Sets the start time
@@ -48,6 +54,7 @@ public class ParkourRun {
      * @param startTime  The time at which the player began running.
      */
     public ParkourRun(Player runner, ParkourArena runningFor, long startTime) {
+        this.runner = runner;
         this.runnerName = runner.getName();
         this.runningFor = runningFor;
         this.startTime = startTime;
@@ -59,6 +66,29 @@ public class ParkourRun {
     public void addToScoreboard() {
         String entryName = String.format("%s - %.3fs", runnerName, this.getRuntime() / 1000.0);
         runningFor.addScore(entryName, this.getRuntime());
+    }
+
+    /**
+     * Teleports the player to their last checkpoint,
+     * if they have checkpointed.
+     *
+     * @return Returns true if the player was teleported to their last checkpoint, false otherwise.
+     */
+    public boolean fall() {
+        if (lastCheckpoint != null) {
+            runner.teleport(lastCheckpoint);
+            runner.sendMessage(ChatColor.GREEN + "Returned to last checkpoint!");
+            runner.playSound(lastCheckpoint, Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
+            return true;
+        }
+        return false;
+    }
+
+    public void checkpoint(Location location) {
+        lastCheckpoint = TnsParkour.getIntLocation(location).add(0.5, 1, 0.5);
+        runner.setBedSpawnLocation(lastCheckpoint, true);
+        runner.sendMessage(ChatColor.GREEN + "Checkpointed!");
+        runner.playSound(runner.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
     }
 
     /**

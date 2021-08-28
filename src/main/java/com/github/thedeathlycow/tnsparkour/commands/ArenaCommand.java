@@ -36,6 +36,8 @@ public class ArenaCommand implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "Error saving arenas, please contact a server admin for help.");
                         return false;
                     }
+                } else if (subCommandstr.equalsIgnoreCase("setHub")) {
+                    return ParkourSubcommand.setHub(sender);
                 }
             }
 
