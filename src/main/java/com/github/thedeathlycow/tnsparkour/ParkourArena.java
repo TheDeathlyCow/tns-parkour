@@ -1,5 +1,6 @@
 package com.github.thedeathlycow.tnsparkour;
 
+import com.github.thedeathlycow.tnsparkour.helpers.PrimitiveSizes;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.util.*;
 
 public class ParkourArena {
@@ -99,12 +101,25 @@ public class ParkourArena {
      * Based on a resource by Nathan Franke <natfra@pm.me>, available
      * at https://www.spigotmc.org/threads/how-to-make-an-all-zeros-sidebar.465666/
      *
+     * TODO: Make this work for arbitrarily large numbers.
+     *
      * @param score The score to sort the scoreboard by.
      * @return Returns a non-rendered string that describes the order in which
      * the given score should appear on the sidebar.
      */
-    private String getSidebarOrder(int score) {
-        return "\u00A7" + (char) (score) + ChatColor.RESET;
+    public static String getSidebarOrder(int score) {
+
+        StringBuilder builder = new StringBuilder();
+        String prefix = "\u00A7";
+        char charMask = (0xFFFF);
+        int numCharsInPrefix = PrimitiveSizes.sizeof(score) / PrimitiveSizes.sizeof('a');
+        for (int i = numCharsInPrefix * 8; i >= 0; i -= 8) {
+            builder.append(prefix);
+            int toAppend = (score >> i) & charMask;
+            builder.append((char)toAppend);
+        }
+
+        return builder.toString() + ChatColor.RESET;
     }
 
     public void onPlayerJoin(Player player) {

@@ -30,6 +30,7 @@ public class ArenaCommand implements CommandExecutor {
                 if (subCommandstr.equalsIgnoreCase("save")) {
                     try {
                         PLUGIN.getArenaManager().saveArenas();
+                        PLUGIN.getArenaManager().loadArenas();
                         return true;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -39,6 +40,8 @@ public class ArenaCommand implements CommandExecutor {
                 } else if (subCommandstr.equalsIgnoreCase("setHub")) {
                     return ParkourSubcommand.setHub(sender);
                 }
+                sender.sendMessage(ChatColor.RED + "Error: Insufficient arguments!");
+                return false;
             }
 
             String arenaName = args[1];

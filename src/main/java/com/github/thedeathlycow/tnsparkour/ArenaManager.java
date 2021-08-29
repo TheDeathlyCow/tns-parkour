@@ -59,6 +59,17 @@ public class ArenaManager {
         }
     }
 
+    public void loadArenas() throws IOException {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin(TnsParkour.NAME);
+        File dataFolder = plugin.getDataFolder();
+
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
+        File file = new File(dataFolder, TnsParkour.arenasFilename);
+        readArenas(file);
+    }
+
     public void saveArenas() throws IOException {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(TnsParkour.NAME);
         File dataFolder = plugin.getDataFolder();
@@ -85,7 +96,6 @@ public class ArenaManager {
         );
 
         String arenasString = gson.toJson(arenasList);
-        System.out.println(arenasString);
         writer.write(arenasString);
         writer.close();
     }
