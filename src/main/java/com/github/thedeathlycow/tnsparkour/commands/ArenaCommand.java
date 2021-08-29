@@ -30,9 +30,9 @@ public class ArenaCommand implements CommandExecutor {
                 if (subCommandstr.equalsIgnoreCase("save")) {
                     try {
                         PLUGIN.getArenaManager().saveArenas();
-                        PLUGIN.getArenaManager().loadArenas();
+                        sender.sendMessage(ChatColor.GREEN + "Successfully saved the current parkour scoreboard!");
                         return true;
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         sender.sendMessage(ChatColor.RED + "Error saving arenas, please contact a server admin for help.");
                         return false;

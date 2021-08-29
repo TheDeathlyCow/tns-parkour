@@ -41,6 +41,13 @@ class ParkourArenaTest {
         assertProperOrder(scoresArr, sortedScores);
     }
 
+    @Test
+    public void testRandomScores() {
+        int[] scoresArr = {997, 1002, 1003, 1035, 1045, 1051, 1091, 1099, 1297};
+        List<String> sortedScores = sortScores(scoresArr);
+        assertProperOrder(scoresArr, sortedScores);
+    }
+
     private void assertProperOrder(int[] scoresArr, List<String> sortedScores) {
         for (int i = 0; i < sortedScores.size(); i++) {
             assertTrue(sortedScores.get(i).endsWith(String.valueOf(scoresArr[i])));
