@@ -9,6 +9,8 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
+
 public enum ParkourSubcommand {
 
     DEFINE(ParkourSubcommand::defineArena),
@@ -201,7 +203,7 @@ public enum ParkourSubcommand {
         }
     }
 
-    public static boolean setHub(CommandSender sender) {
+    public static boolean setHub(CommandSender sender) throws IOException {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             Location loc = TnsParkour.getIntLocation(player.getLocation());
@@ -209,6 +211,7 @@ public enum ParkourSubcommand {
             player.sendMessage(ChatColor.GREEN + "Successfully set the hub of the server "
                     + " to your current position!");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            PLUGIN.saveHub();
             return true;
         }
         sender.sendMessage(ChatColor.RED + "You must be logged in to define locations!");

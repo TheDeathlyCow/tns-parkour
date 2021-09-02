@@ -77,21 +77,22 @@ public final class TnsParkour extends JavaPlugin {
 
             File arenasFile = new File(this.getDataFolder(), arenasFilename);
             ARENA_MANAGER.saveArenas(arenasFile);
-
-            File data = new File(this.getDataFolder(), "hub.json");
-            Gson gson = new GsonBuilder()
-                    .disableHtmlEscaping()
-                    .setPrettyPrinting()
-                    .create();
-
-            FileWriter writer = new FileWriter(data);
-            writer.write(gson.toJson(hubLocation.serialize()));
-            writer.close();
-
+            saveHub();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error saving arenas file!");
         }
+    }
+
+    public void saveHub() throws IOException {
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create();
+        File data = new File(this.getDataFolder(), "hub.json");
+        FileWriter writer = new FileWriter(data);
+        writer.write(gson.toJson(hubLocation.serialize()));
+        writer.close();
     }
 
     public ArenaManager getArenaManager() {

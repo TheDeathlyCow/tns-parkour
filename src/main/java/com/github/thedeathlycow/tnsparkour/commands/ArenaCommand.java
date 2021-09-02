@@ -38,7 +38,12 @@ public class ArenaCommand implements CommandExecutor {
                         return false;
                     }
                 } else if (subCommandstr.equalsIgnoreCase("setHub")) {
-                    return ParkourSubcommand.setHub(sender);
+                    try {
+                        return ParkourSubcommand.setHub(sender);
+                    } catch (IOException e) {
+                        sender.sendMessage(ChatColor.RED + "Error saving hub location, please contact an administrator.");
+                        return false;
+                    }
                 }
                 sender.sendMessage(ChatColor.RED + "Error: Insufficient arguments!");
                 return false;
@@ -53,8 +58,16 @@ public class ArenaCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Error: '" + subCommandstr + "' is not a valid argument!");
                 return false;
             }
-
-            return subCommand.executor.execute(sender, arenaName);
+            boolean success = subCommand.executor.execute(sender, arenaName);
+            try {
+                if (success) {
+                    PLUGIN.getArenaManager().saveArenas();
+                }
+            } catch (IOException e) {
+                sender.sendMessage(ChatColor.RED + "Error saving parkour arenas, please contact an administrator.");
+                return false;
+            }
+            return success;
         } else {
             sender.sendMessage(ChatColor.RED + "Error: Insufficient arguments!");
             return false;

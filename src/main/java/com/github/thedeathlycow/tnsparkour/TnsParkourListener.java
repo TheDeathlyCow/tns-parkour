@@ -12,7 +12,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,11 @@ public class TnsParkourListener implements Listener {
     public TnsParkourListener(TnsParkour plugin) {
         this.PLUGIN = plugin;
         inProgressRuns = new HashMap<>();
+    }
+
+    @EventHandler
+    public void onLogout(PlayerQuitEvent event) {
+        inProgressRuns.remove(event.getPlayer());
     }
 
     @EventHandler
@@ -68,6 +75,7 @@ public class TnsParkourListener implements Listener {
             Location hub = PLUGIN.getHubLocation();
             if (intrLocation.equals(hub)) {
                 event.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+                inProgressRuns.remove(event.getPlayer());
             }
         }
     }
@@ -99,6 +107,11 @@ public class TnsParkourListener implements Listener {
             player.sendMessage(ChatColor.AQUA + "Completed run of arena " + run.getArena().getName()
                     + String.format(" in %.3f seconds!", run.getRuntime() / 1000.0));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            try {
+                PLUGIN.getArenaManager().saveArenas();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
