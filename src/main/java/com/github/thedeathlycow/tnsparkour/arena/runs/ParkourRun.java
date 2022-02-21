@@ -1,5 +1,7 @@
-package com.github.thedeathlycow.tnsparkour;
+package com.github.thedeathlycow.tnsparkour.arena.runs;
 
+import com.github.thedeathlycow.tnsparkour.arena.IntLocation;
+import com.github.thedeathlycow.tnsparkour.arena.ParkourArena;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -13,25 +15,27 @@ import org.bukkit.entity.Player;
 public class ParkourRun {
 
     /**
-     * The name of the runner.
+     * Reference to the player running
      */
-    private final String runnerName;
-    private final Player runner;
+    private transient final Player runner;
+
     /**
      * The arena the runner is running.
      */
     private final ParkourArena runningFor;
+
     /**
      * The time the runner started the run, in milliseconds.
      */
-    private final long startTime;
+    private long startTime = -1;
+
     /**
      * The time the runner ended the run, in milliseconds.
      * This value is -1 until the run is completed.
      */
     private long endTime = -1;
 
-    private Location lastCheckpoint = null;
+    private IntLocation lastCheckpoint;
 
     /**
      * Starts a run with a runner. Sets the start time
@@ -41,31 +45,9 @@ public class ParkourRun {
      * @param runningFor The arena the player is running for.
      */
     public ParkourRun(Player runner, ParkourArena runningFor) {
-        this(runner, runningFor, System.currentTimeMillis());
-    }
-
-    /**
-     * Starts a run with a runner and a start time.
-     * Specifying the start time may lead to greater
-     * consistency, though it is optional.
-     *
-     * @param runner     The player running.
-     * @param runningFor The arena the player is running for.
-     * @param startTime  The time at which the player began running.
-     */
-    public ParkourRun(Player runner, ParkourArena runningFor, long startTime) {
         this.runner = runner;
-        this.runnerName = runner.getName();
         this.runningFor = runningFor;
-        this.startTime = startTime;
-    }
-
-    /**
-     * Adds this run to this run's scoreboard.
-     */
-    public void addToScoreboard() {
-        String entryName = String.format("%s - %.3fs", runnerName, this.getRuntime() / 1000.0);
-        runningFor.addScore(entryName, this.getRuntime());
+        this.checkpoint(runningFor.getStartLocation());
     }
 
     /**
@@ -76,52 +58,36 @@ public class ParkourRun {
      */
     public boolean fall() {
         if (lastCheckpoint != null) {
-            runner.teleport(lastCheckpoint);
+            Location worldCheckpointLocation = lastCheckpoint.getAsLocationCentered();
+            runner.teleport(worldCheckpointLocation);
             runner.sendMessage(ChatColor.GREEN + "Returned to last checkpoint!");
-            runner.playSound(lastCheckpoint, Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
+            runner.playSound(worldCheckpointLocation, Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
             return true;
         }
         return false;
     }
 
-    public void checkpoint(Location location) {
-        lastCheckpoint = TnsParkour.getIntLocation(location).add(0.5, 1, 0.5);
-        runner.setBedSpawnLocation(lastCheckpoint, true);
+    public void checkpoint(IntLocation checkpoint) {
+        lastCheckpoint = checkpoint;
+        runner.setBedSpawnLocation(lastCheckpoint.getAsLocationCentered(), true);
+
         runner.sendMessage(ChatColor.GREEN + "Checkpointed!");
         runner.playSound(runner.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
     }
 
-    /**
-     * Ends the run at a specific time.
-     * <p>
-     * If the end time needs to be used for anything else,
-     * this may be the better method to use.
-     *
-     * @param endTime The UNIX epoch time (in milliseconds) at which the
-     *                run ended.
-     */
-    public void endRun(long endTime) {
-        this.endTime = endTime;
+    public void start() {
+        if (!isStarted()) {
+            this.startTime = System.currentTimeMillis();
+        }
     }
 
     /**
      * Ends the run at the current time.
      */
-    public void endRun() {
-        endRun(System.currentTimeMillis());
-    }
-
-    /**
-     * Returns the name of the runner.
-     *
-     * @return The name of the runner
-     */
-    public String getRunnerName() {
-        return runnerName;
-    }
-
-    public ParkourArena getArena() {
-        return runningFor;
+    public void end() {
+        if (!isCompleted()) {
+            this.endTime = System.currentTimeMillis();
+        }
     }
 
     /**
@@ -131,6 +97,10 @@ public class ParkourRun {
      */
     public boolean isCompleted() {
         return endTime >= 0;
+    }
+
+    public boolean isStarted() {
+        return startTime >= 0;
     }
 
     /**
@@ -147,4 +117,11 @@ public class ParkourRun {
         }
     }
 
+    public ParkourArena getArena() {
+        return runningFor;
+    }
+
+    public Player getRunner() {
+        return runner;
+    }
 }

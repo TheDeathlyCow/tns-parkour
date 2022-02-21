@@ -7,7 +7,7 @@ description: Provides a basic framework for parkour on TNS, and integrates with 
 website: github.com/thedeathlycow/tns-parkour
 
 commands:
-  tnsparkour:
-    description: Create and delete parkour arenas.
-    usage: /tnsparkour <define | setStartLocation | setEndLocation | delete> <arenaName>
-    permission: tnsparkour.modifyarenas
+  reloadParkour:
+    description: Reloads parkour arenas
+    usage: /reloadParkour
+    permission: tnsparkour.realoadarenas
