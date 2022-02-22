@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class ArenaManager {
 
     private final Map<String, ParkourArena> ARENAS = new HashMap<>();
-    private Map<IntLocation, ParkourArena> locationLookupCache = new HashMap<>();
+    private final Map<CacheKey, ParkourArena> locationLookupCache = new HashMap<>();
     private final Gson GSON;
 
     public ArenaManager() {
@@ -33,6 +33,7 @@ public class ArenaManager {
     }
 
     public void readArenas() {
+        ARENAS.clear();
         locationLookupCache.clear();
         File arenasFolder = new File(TnsParkour.getInstance().getDataFolder(), "arenas");
 
@@ -65,7 +66,7 @@ public class ArenaManager {
             Bukkit.getLogger().log(Level.SEVERE, msg);
         } catch (JsonSyntaxException exception) {
             exception.printStackTrace();
-            String msg = String.format("Arena %s failed to deserialize arena: %s", file.getName(), exception.getMessage());
+            String msg = String.format("Arena %s failed to deserialize: %s", file.getName(), exception.getMessage());
             Bukkit.getLogger().log(Level.SEVERE, msg);
         }
 
@@ -76,10 +77,11 @@ public class ArenaManager {
     }
 
     @Nullable
-    public ParkourArena getArenaAtLocation(IntLocation location, LocationFilter compareTo) {
+    public ParkourArena getArenaAtLocation(IntLocation location, LocationFilter compareTo, LocationType type) {
 
-        if (locationLookupCache.containsKey(location)) {
-            return locationLookupCache.get(location);
+        CacheKey cacheKey = new CacheKey(location, type);
+        if (locationLookupCache.containsKey(cacheKey)) {
+            return locationLookupCache.get(cacheKey);
         }
 
         Map.Entry<String, ParkourArena> result = ARENAS.entrySet().stream()
@@ -87,12 +89,42 @@ public class ArenaManager {
                 .findFirst().orElse(null);
 
         ParkourArena found = result != null ? result.getValue() : null;
-        locationLookupCache.put(location, found);
+        locationLookupCache.put(cacheKey, found);
         return found;
     }
 
     public interface LocationFilter {
         Collection<IntLocation> getLocation(ParkourArena arena);
+    }
+
+    public enum LocationType {
+        START_LOCATION,
+        CHECKPOINT_LOCATION,
+        END_LOCATION
+    }
+
+    private static class CacheKey {
+
+        public final IntLocation location;
+        public final LocationType type;
+
+        private CacheKey(IntLocation location, LocationType type) {
+            this.location = location;
+            this.type = type;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CacheKey cacheKey = (CacheKey) o;
+            return Objects.equals(location, cacheKey.location) && type == cacheKey.type;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(location, type);
+        }
     }
 
 }

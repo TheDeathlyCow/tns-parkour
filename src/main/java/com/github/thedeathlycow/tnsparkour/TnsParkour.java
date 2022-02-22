@@ -1,26 +1,32 @@
 package com.github.thedeathlycow.tnsparkour;
 
 import com.github.thedeathlycow.tnsparkour.arena.ArenaManager;
+import com.github.thedeathlycow.tnsparkour.commands.ReloadParkour;
 import com.github.thedeathlycow.tnsparkour.events.NoParamEventDelegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.A;
 
+import java.util.Objects;
 import java.util.logging.Level;
 
 public final class TnsParkour extends JavaPlugin {
 
     private static TnsParkour instance;
     public static final String NAME;
-    public static final String arenasFilename;
 
-    private final ArenaManager ARENA_MANAGER = new ArenaManager();
+    private final ArenaManager ARENA_MANAGER;
     private Location hubLocation;
     public final NoParamEventDelegate onEnableDelegate = new NoParamEventDelegate();
 
+    public TnsParkour() {
+        instance = this;
+        ARENA_MANAGER = new ArenaManager();
+    }
+
     @Override
     public void onEnable() {
-        instance = this;
         this.getServer().getPluginManager()
                 .registerEvents(new TnsParkourListener(), this);
         try {
@@ -30,6 +36,8 @@ public final class TnsParkour extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Objects.requireNonNull(this.getCommand("reloadParkour")).setExecutor(new ReloadParkour());
 
         onEnableDelegate.execute();
     }
@@ -63,6 +71,5 @@ public final class TnsParkour extends JavaPlugin {
 
     static {
         NAME = "TNS-Parkour";
-        arenasFilename = "arenas.json";
     }
 }

@@ -12,13 +12,13 @@ import java.util.*;
 public class ParkourArena {
 
     private final String NAME;
-    private final List<String> AUTHORS;
+    private final String[] AUTHORS;
     private final IntLocation startLocation;
     private final IntLocation endLocation;
     private final Set<IntLocation> checkPoints = new HashSet<>();
     private transient final RunManager runManager;
 
-    public ParkourArena(final String name, final List<String> authors, final IntLocation start, final IntLocation end) {
+    public ParkourArena(final String name, final String[] authors, final IntLocation start, final IntLocation end) {
         this.NAME = name;
         this.AUTHORS = authors;
         this.startLocation = start;
@@ -31,9 +31,7 @@ public class ParkourArena {
     }
 
     public boolean isCheckpoint(IntLocation location) {
-        return checkPoints.stream()
-                .filter(checkPoint -> checkPoint.equals(location))
-                .findFirst().orElse(null) != null;
+        return checkPoints.contains(location);
     }
 
     public void addCheckpoint(IntLocation location) {
@@ -80,11 +78,9 @@ public class ParkourArena {
 
             String name = object.get("name").getAsString();
 
-            List<String> authors = gson.fromJson(
-                    object.get("authors").getAsJsonObject(),
-                    new TypeToken<List<String>>() {
-                    }
-                            .getType()
+            String[] authors = gson.fromJson(
+                    object.get("authors").getAsJsonArray(),
+                    String[].class
             );
 
             IntLocation startLoc = gson.fromJson(object.get("start").getAsJsonObject(), IntLocation.class);
@@ -92,9 +88,9 @@ public class ParkourArena {
             IntLocation endLoc = gson.fromJson(object.get("end"), IntLocation.class);
 
             List<IntLocation> checkPoints = gson.fromJson(
-                    object.get("checkPoints").getAsJsonObject(),
-                    new TypeToken<List<IntLocation>>() {
-                    }.getType()
+                    object.get("checkPoints").getAsJsonArray(),
+                    new TypeToken<List<IntLocation>>()
+                    {}.getType()
             );
 
             ParkourArena arena = new ParkourArena(name, authors, startLoc, endLoc);

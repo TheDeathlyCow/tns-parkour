@@ -61,7 +61,7 @@ public class IntLocation {
 
     @Override
     public String toString() {
-        return "ArenaLocation{" +
+        return "IntLocation{" +
                 "world=" + world.getName() +
                 ", x=" + x +
                 ", y=" + y +

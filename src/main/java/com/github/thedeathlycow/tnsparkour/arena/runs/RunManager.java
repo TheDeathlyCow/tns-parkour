@@ -1,6 +1,7 @@
 package com.github.thedeathlycow.tnsparkour.arena.runs;
 
 import com.github.thedeathlycow.tnsparkour.TnsParkour;
+import com.github.thedeathlycow.tnsparkour.arena.IntLocation;
 import com.github.thedeathlycow.tnsparkour.arena.ParkourArena;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,9 +15,8 @@ import java.util.logging.Level;
 
 public class RunManager {
 
-    private final Objective objective;
+    private Objective objective;
     private final ParkourArena arena;
-    private final Map<String, Integer> scores = new HashMap<>();
     private final Map<Player, ParkourRun> inProgressRuns = new HashMap<>();
 
     public RunManager(Scoreboard scoreboard, final ParkourArena arena) {
@@ -24,11 +24,25 @@ public class RunManager {
 
         String objectivePrefix = TnsParkour.getInstance().getConfig().getString("run_objective_prefix", "tnsparkour.runs.");
         String objectiveName = objectivePrefix + arena.getName();
-        objective = scoreboard.registerNewObjective(objectiveName, "dummy", objectiveName);
+        try {
+            objective = scoreboard.registerNewObjective(objectiveName, "dummy", objectiveName);
+        } catch (IllegalArgumentException ex) {
+            objective = scoreboard.getObjective(objectiveName);
+            String msg = String.format("Error registering objective: %s", ex.getMessage());
+            Bukkit.getLogger().log(Level.WARNING, msg);
+        }
 
     }
 
+    public void checkpoint(Player player, IntLocation location) {
+        if (inProgressRuns.containsKey(player)) {
+            ParkourRun run = inProgressRuns.get(player);
+            run.checkpoint(location);
+        }
+    }
+
     public void startRun(Player player) {
+        inProgressRuns.remove(player);
         ParkourRun run = new ParkourRun(player, arena);
         inProgressRuns.put(player, run);
         run.start();
@@ -41,26 +55,27 @@ public class RunManager {
         }
     }
 
-    public void completeRun(Player player, boolean recordScore) {
+    public int completeRun(Player player, boolean recordScore) {
 
         if (!inProgressRuns.containsKey(player)) {
             String msg = String.format("Attempted to end a run on %s for %s, but they were not running that arena.",
                     arena.getName(), player.getName());
             Bukkit.getLogger().log(Level.INFO, msg);
-            return;
+            return -1;
         }
 
         ParkourRun run = inProgressRuns.remove(player);
         run.end();
 
+        int time = run.getRuntime();
         if (recordScore) {
-            int time = run.getRuntime();
             Score current = objective.getScore(player.getName());
-
-            if (!current.isScoreSet() || time < current.getScore()) {
+            if (current.getScore() == 0 || time < current.getScore()) {
                 current.setScore(time);
             }
         }
+
+        return time;
     }
 
     public void completeRun(Player player) {

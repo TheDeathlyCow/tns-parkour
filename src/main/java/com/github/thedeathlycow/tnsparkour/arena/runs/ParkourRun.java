@@ -56,23 +56,16 @@ public class ParkourRun {
      *
      * @return Returns true if the player was teleported to their last checkpoint, false otherwise.
      */
-    public boolean fall() {
+    public void fall() {
         if (lastCheckpoint != null) {
             Location worldCheckpointLocation = lastCheckpoint.getAsLocationCentered();
             runner.teleport(worldCheckpointLocation);
-            runner.sendMessage(ChatColor.GREEN + "Returned to last checkpoint!");
-            runner.playSound(worldCheckpointLocation, Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
-            return true;
         }
-        return false;
     }
 
     public void checkpoint(IntLocation checkpoint) {
         lastCheckpoint = checkpoint;
         runner.setBedSpawnLocation(lastCheckpoint.getAsLocationCentered(), true);
-
-        runner.sendMessage(ChatColor.GREEN + "Checkpointed!");
-        runner.playSound(runner.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
     }
 
     public void start() {
