@@ -1,6 +1,7 @@
 package com.github.thedeathlycow.tnsparkour;
 
 import com.github.thedeathlycow.tnsparkour.arena.ArenaManager;
+import com.github.thedeathlycow.tnsparkour.commands.RefreshLeaderboards;
 import com.github.thedeathlycow.tnsparkour.commands.ReloadParkour;
 import com.github.thedeathlycow.tnsparkour.events.NoParamEventDelegate;
 import org.bukkit.Bukkit;
@@ -38,7 +39,7 @@ public final class TnsParkour extends JavaPlugin {
         }
 
         Objects.requireNonNull(this.getCommand("reloadParkour")).setExecutor(new ReloadParkour());
-
+        Objects.requireNonNull(this.getCommand("refreshLeaderboards")).setExecutor(new RefreshLeaderboards());
         onEnableDelegate.execute();
     }
 

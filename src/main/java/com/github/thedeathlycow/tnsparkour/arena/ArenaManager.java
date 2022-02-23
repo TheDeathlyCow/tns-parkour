@@ -32,6 +32,12 @@ public class ArenaManager {
                 .create();
     }
 
+    public void refreshLeaderboards() {
+        for (Map.Entry<String, ParkourArena> arena : ARENAS.entrySet()) {
+            arena.getValue().refreshLeaderboard();
+        }
+    }
+
     public void readArenas() {
         ARENAS.clear();
         locationLookupCache.clear();
@@ -77,7 +83,7 @@ public class ArenaManager {
     }
 
     @Nullable
-    public ParkourArena getArenaAtLocation(IntLocation location, LocationFilter compareTo, LocationType type) {
+    public ParkourArena getArenaAtLocation(IntLocation location, LocationCollectionProvider provider, LocationType type) {
 
         CacheKey cacheKey = new CacheKey(location, type);
         if (locationLookupCache.containsKey(cacheKey)) {
@@ -85,7 +91,7 @@ public class ArenaManager {
         }
 
         Map.Entry<String, ParkourArena> result = ARENAS.entrySet().stream()
-                .filter((entry) -> compareTo.getLocation(entry.getValue()).contains(location))
+                .filter((entry) -> provider.getLocation(entry.getValue()).contains(location))
                 .findFirst().orElse(null);
 
         ParkourArena found = result != null ? result.getValue() : null;
@@ -93,7 +99,7 @@ public class ArenaManager {
         return found;
     }
 
-    public interface LocationFilter {
+    public interface LocationCollectionProvider {
         Collection<IntLocation> getLocation(ParkourArena arena);
     }
 

@@ -11,3 +11,7 @@ commands:
     description: Reloads parkour arenas
     usage: /reloadParkour
     permission: tnsparkour.realoadarenas
+  refreshLeaderboards:
+    description: Refreshes all parkour leaderboards
+    usage: /refreshLeaderboards
+    permission: tnsparkour.refreshleaderboards

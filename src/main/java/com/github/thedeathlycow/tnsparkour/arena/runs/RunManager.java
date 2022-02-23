@@ -9,7 +9,9 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -22,7 +24,8 @@ public class RunManager {
     public RunManager(Scoreboard scoreboard, final ParkourArena arena) {
         this.arena = arena;
 
-        String objectivePrefix = TnsParkour.getInstance().getConfig().getString("run_objective_prefix", "tnsparkour.runs.");
+        String objectivePrefix = TnsParkour.getInstance()
+                .getConfig().getString("run_objective_prefix", "tnsparkour.runs.");
         String objectiveName = objectivePrefix + arena.getName();
         try {
             objective = scoreboard.registerNewObjective(objectiveName, "dummy", objectiveName);
@@ -55,6 +58,20 @@ public class RunManager {
         }
     }
 
+    public List<Score> getScores() {
+        Scoreboard scoreboard = objective.getScoreboard();
+        List<Score> scores = new ArrayList<>();
+        assert scoreboard != null;
+        for (String entry : scoreboard.getEntries()) {
+            Score score = objective.getScore(entry);
+            if (score.getScore() != 0) {
+                scores.add(score);
+            }
+        }
+
+        return scores;
+    }
+
     public int completeRun(Player player, boolean recordScore) {
 
         if (!inProgressRuns.containsKey(player)) {
@@ -73,6 +90,7 @@ public class RunManager {
             if (current.getScore() == 0 || time < current.getScore()) {
                 current.setScore(time);
             }
+            arena.refreshLeaderboard();
         }
 
         return time;
@@ -80,5 +98,9 @@ public class RunManager {
 
     public void completeRun(Player player) {
         completeRun(player, false);
+    }
+
+    public Objective getObjective() {
+        return objective;
     }
 }

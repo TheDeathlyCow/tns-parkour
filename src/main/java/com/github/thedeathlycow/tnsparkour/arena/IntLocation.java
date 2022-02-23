@@ -34,6 +34,10 @@ public class IntLocation {
         return getAsLocation().add(0.5, 0.5, 0.5);
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     public int getX() {
         return x;
     }

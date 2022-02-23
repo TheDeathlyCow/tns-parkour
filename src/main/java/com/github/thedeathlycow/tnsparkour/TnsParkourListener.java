@@ -116,7 +116,9 @@ public class TnsParkourListener implements Listener {
         playerArenas.put(player, arena);
         arena.getRunManager().startRun(player);
 
-        player.sendMessage(ChatColor.AQUA + "Starting run of arena " + arena.getName() + "!");
+        String authors = arena.getAuthorsJoined();
+        String startMsg = String.format("Starting run of arena %s, by %s", arena.getName(), authors);
+        player.sendMessage(ChatColor.AQUA + startMsg);
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }
 

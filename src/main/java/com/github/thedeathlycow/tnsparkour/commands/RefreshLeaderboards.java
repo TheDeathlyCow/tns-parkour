@@ -5,11 +5,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class ReloadParkour implements CommandExecutor {
+public class RefreshLeaderboards implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
         TnsParkour plugin = TnsParkour.getInstance();
-        plugin.getArenaManager().readArenas();
+        plugin.getArenaManager().refreshLeaderboards();
 
         return true;
     }
