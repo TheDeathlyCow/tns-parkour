@@ -6,6 +6,7 @@ import com.github.thedeathlycow.tnsparkour.commands.ReloadParkour;
 import com.github.thedeathlycow.tnsparkour.events.NoParamEventDelegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.A;
 
@@ -16,6 +17,7 @@ public final class TnsParkour extends JavaPlugin {
 
     private static TnsParkour instance;
     public static final String NAME;
+
 
     private final ArenaManager ARENA_MANAGER;
     private Location hubLocation;
@@ -40,6 +42,9 @@ public final class TnsParkour extends JavaPlugin {
 
         Objects.requireNonNull(this.getCommand("reloadParkour")).setExecutor(new ReloadParkour());
         Objects.requireNonNull(this.getCommand("refreshLeaderboards")).setExecutor(new RefreshLeaderboards());
+
+        this.setDefaultConfig();
+
         onEnableDelegate.execute();
     }
 
@@ -68,6 +73,16 @@ public final class TnsParkour extends JavaPlugin {
                 location.getBlockX(),
                 location.getBlockY(),
                 location.getBlockZ());
+    }
+
+    private void setDefaultConfig() {
+        FileConfiguration config = this.getConfig();
+        config.addDefault("time_added_on_fall_ms", 1500);
+        config.addDefault("leaderboard_tag_prefix", "tnsparkour_leaderboard_");
+        config.addDefault("run_objective_prefix", "tnsparkour.runs.");
+        config.options().copyDefaults(true);
+        this.saveDefaultConfig();
+        this.saveConfig();
     }
 
     static {

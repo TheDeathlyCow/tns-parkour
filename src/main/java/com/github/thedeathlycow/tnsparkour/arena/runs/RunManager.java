@@ -4,7 +4,14 @@ import com.github.thedeathlycow.tnsparkour.TnsParkour;
 import com.github.thedeathlycow.tnsparkour.arena.IntLocation;
 import com.github.thedeathlycow.tnsparkour.arena.ParkourArena;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
@@ -25,7 +32,7 @@ public class RunManager {
         this.arena = arena;
 
         String objectivePrefix = TnsParkour.getInstance()
-                .getConfig().getString("run_objective_prefix", "tnsparkour.runs.");
+                .getConfig().getString("run_objective_prefix");
         String objectiveName = objectivePrefix + arena.getName();
         try {
             objective = scoreboard.registerNewObjective(objectiveName, "dummy", objectiveName);
@@ -44,11 +51,22 @@ public class RunManager {
         }
     }
 
+    public void restart(Player player) {
+        if (inProgressRuns.containsKey(player)) {
+            Location startLocation = arena.getStartLocation().getAsLocationCentered();
+            startLocation.add(0, 1.5, 0);
+            player.teleport(startLocation);
+            startRun(player);
+        }
+    }
+
     public void startRun(Player player) {
         inProgressRuns.remove(player);
         ParkourRun run = new ParkourRun(player, arena);
         inProgressRuns.put(player, run);
         run.start();
+
+
     }
 
     public void fall(Player player) {
@@ -96,11 +114,4 @@ public class RunManager {
         return time;
     }
 
-    public void completeRun(Player player) {
-        completeRun(player, false);
-    }
-
-    public Objective getObjective() {
-        return objective;
-    }
 }

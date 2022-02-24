@@ -1,12 +1,13 @@
 package com.github.thedeathlycow.tnsparkour;
 
 import com.github.thedeathlycow.tnsparkour.arena.ArenaManager;
+import com.github.thedeathlycow.tnsparkour.arena.CustomNBTItemTags;
 import com.github.thedeathlycow.tnsparkour.arena.IntLocation;
 import com.github.thedeathlycow.tnsparkour.arena.ParkourArena;
-import com.github.thedeathlycow.tnsparkour.events.OneParamEventDelegate;
+import com.github.thedeathlycow.tnsparkour.arena.runs.ParkourRun;
 import com.github.thedeathlycow.tnsparkour.events.TwoParamEventDelegate;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -16,11 +17,13 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class TnsParkourListener implements Listener {
 
@@ -45,11 +48,32 @@ public class TnsParkourListener implements Listener {
     }
 
     @EventHandler
+    public void onRightClickItem(PlayerInteractEvent event) {
+        if (!event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
+            return;
+        }
+        if (!event.hasItem()) {
+            return;
+        }
+        Player player = event.getPlayer();
+        if (!playerArenas.containsKey(player)) {
+            return;
+        }
+
+        ItemStack item = event.getItem();
+        assert item != null;
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+
+        returnToStartEvent(player, meta);
+        fallEvent(player, meta);
+    }
+
+    @EventHandler
     public void onInteractEvent(PlayerInteractEvent event) {
         if (!event.getAction().equals(Action.PHYSICAL)) {
             return;
         }
-        Bukkit.getLogger().log(Level.INFO, "Interact event fired");
         Block interactedWith = event.getClickedBlock();
         if (interactedWith == null) {
             return;
@@ -62,7 +86,6 @@ public class TnsParkourListener implements Listener {
     }
 
     private void reachEnd(Player player, IntLocation location) {
-        Bukkit.getLogger().log(Level.INFO, "reach end event fired");
         if (!playerArenas.containsKey(player)) {
             return;
         }
@@ -81,7 +104,6 @@ public class TnsParkourListener implements Listener {
     }
 
     private void hitCheckpoint(Player player, IntLocation location) {
-        Bukkit.getLogger().log(Level.INFO, "checkpoint event fired");
         if (!playerArenas.containsKey(player)) {
             return;
         }
@@ -102,7 +124,6 @@ public class TnsParkourListener implements Listener {
     }
 
     private void startRun(Player player, IntLocation location) {
-        Bukkit.getLogger().log(Level.INFO, "start event fired");
         ArenaManager arenaManager = TnsParkour.getInstance().getArenaManager();
         ParkourArena arena = arenaManager
                 .getArenaAtLocation(location,
@@ -126,7 +147,19 @@ public class TnsParkourListener implements Listener {
         if (playerArenas.containsKey(player)) {
             ParkourArena currArena = playerArenas.get(player);
             currArena.getRunManager().fall(player);
-            player.sendMessage(ChatColor.GREEN + "Returned to last checkpoint!");
+            String msg = String.format("Returned to last checkpoint (added %.3f seconds)!",
+                    ParkourRun.getTimeToAddOnFall() / 1000.0);
+            player.sendMessage(ChatColor.GREEN + msg);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
+        }
+    }
+
+    private void returnToStart(Player player) {
+        if (playerArenas.containsKey(player)) {
+            ParkourArena arena = playerArenas.get(player);
+            arena.getRunManager().restart(player);
+
+            player.sendMessage(ChatColor.GREEN + "Returned to start!");
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
         }
     }
@@ -141,6 +174,20 @@ public class TnsParkourListener implements Listener {
                 player.sendMessage(ChatColor.GREEN + msg);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
             }
+        }
+    }
+
+    private void returnToStartEvent(Player player, ItemMeta meta) {
+        NamespacedKey key = new NamespacedKey(TnsParkour.getInstance(), CustomNBTItemTags.RETURN_TO_START_TAG);
+        if (meta.getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
+            returnToStart(player);
+        }
+    }
+
+    private void fallEvent(Player player, ItemMeta meta) {
+        NamespacedKey key = new NamespacedKey(TnsParkour.getInstance(), CustomNBTItemTags.FALL_TAG);
+        if (meta.getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
+            returnToCheckpoint(player);
         }
     }
 

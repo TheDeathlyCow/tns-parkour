@@ -189,7 +189,7 @@ public class ParkourArena {
 
     private String getLeaderboardTag() {
         String tagPrefix = TnsParkour.getInstance().getConfig()
-                .getString("leaderboard_tag_prefix", "tnsparkour_leaderboard_");
+                .getString("leaderboard_tag_prefix");
         return tagPrefix + getName();
     }
 }
