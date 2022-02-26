@@ -141,7 +141,7 @@ public class ParkourRun {
 
         List<PotionEffect> effects = Arrays.asList(
                 new PotionEffect(PotionEffectType.REGENERATION, 999999, 1),
-                new PotionEffect(PotionEffectType.ABSORPTION, 999999, 1)
+                new PotionEffect(PotionEffectType.SATURATION, 999999, 1)
         );
         runner.addPotionEffects(effects);
 
