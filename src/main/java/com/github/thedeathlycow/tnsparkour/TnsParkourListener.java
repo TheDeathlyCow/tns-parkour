@@ -49,7 +49,8 @@ public class TnsParkourListener implements Listener {
 
     @EventHandler
     public void onRightClickItem(PlayerInteractEvent event) {
-        if (!event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
+        if (!(event.getAction().equals(Action.RIGHT_CLICK_AIR)
+                || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
             return;
         }
         if (!event.hasItem()) {
