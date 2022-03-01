@@ -39,8 +39,8 @@ public class TnsParkourListener implements Listener {
 
     @EventHandler
     public void onLogout(PlayerQuitEvent event) {
-        endRun(event.getPlayer(), false);
         returnToStart(event.getPlayer());
+        endRun(event.getPlayer(), false);
     }
 
     @EventHandler
