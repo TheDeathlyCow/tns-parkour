@@ -17,6 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -39,11 +40,12 @@ public class TnsParkourListener implements Listener {
     @EventHandler
     public void onLogout(PlayerQuitEvent event) {
         endRun(event.getPlayer(), false);
+        returnToStart(event.getPlayer());
     }
 
     @EventHandler
-    public void onDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
         returnToCheckpoint(player);
     }
 

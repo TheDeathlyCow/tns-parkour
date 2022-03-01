@@ -65,8 +65,6 @@ public class RunManager {
         ParkourRun run = new ParkourRun(player, arena);
         inProgressRuns.put(player, run);
         run.start();
-
-
     }
 
     public void fall(Player player) {

@@ -71,7 +71,7 @@ public class ParkourRun {
         if (lastCheckpoint != null) {
             Location worldCheckpointLocation = lastCheckpoint.getAsLocationCentered();
             runner.teleport(worldCheckpointLocation);
-
+            setPlayerInventoryAndEffects();
             startTime -= getTimeToAddOnFall();
         }
     }
@@ -134,7 +134,7 @@ public class ParkourRun {
         return runner;
     }
 
-    private void setPlayerInventoryAndEffects() {
+    public void setPlayerInventoryAndEffects() {
 
         runner.getInventory().clear();
         removeRunnerEffects();
