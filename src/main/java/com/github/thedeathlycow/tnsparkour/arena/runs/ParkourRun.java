@@ -140,9 +140,9 @@ public class ParkourRun {
         removeRunnerEffects();
 
         List<PotionEffect> effects = Arrays.asList(
-                new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255),
-                new PotionEffect(PotionEffectType.REGENERATION, 999999, 1),
-                new PotionEffect(PotionEffectType.SATURATION, 999999, 1)
+                new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, true, false),
+                new PotionEffect(PotionEffectType.REGENERATION, 999999, 1, true, false),
+                new PotionEffect(PotionEffectType.SATURATION, 999999, 1, true, false)
         );
         runner.addPotionEffects(effects);
 
