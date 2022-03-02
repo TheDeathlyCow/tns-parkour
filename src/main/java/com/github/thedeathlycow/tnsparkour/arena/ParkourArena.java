@@ -27,15 +27,17 @@ public class ParkourArena {
     private final IntLocation startLocation;
     private final IntLocation endLocation;
     private final IntLocation leaderboard;
+    private final IntLocation exitButton;
     private final Set<IntLocation> checkPoints = new HashSet<>();
     private transient final RunManager runManager;
 
-    public ParkourArena(final String name, final String[] authors, final IntLocation start, final IntLocation end, final IntLocation leaderboard) {
+    public ParkourArena(final String name, final String[] authors, final IntLocation start, final IntLocation end, final IntLocation leaderboard, final IntLocation exitButton) {
         this.NAME = name;
         this.AUTHORS = authors;
         this.startLocation = start;
         this.endLocation = end;
         this.leaderboard = leaderboard;
+        this.exitButton = exitButton;
 
         Scoreboard scoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager())
                 .getMainScoreboard();
@@ -120,6 +122,10 @@ public class ParkourArena {
         return endLocation;
     }
 
+    public IntLocation getExitButtonLocation() {
+        return exitButton;
+    }
+
     public final RunManager getRunManager() {
         return runManager;
     }
@@ -153,7 +159,9 @@ public class ParkourArena {
                     }.getType()
             );
 
-            ParkourArena arena = new ParkourArena(name, authors, startLoc, endLoc, leaderboardLoc);
+            IntLocation exitButton = gson.fromJson(object.get("exitButton"), IntLocation.class);
+
+            ParkourArena arena = new ParkourArena(name, authors, startLoc, endLoc, leaderboardLoc, exitButton);
             arena.addCheckpoints(checkPoints);
             return arena;
         }

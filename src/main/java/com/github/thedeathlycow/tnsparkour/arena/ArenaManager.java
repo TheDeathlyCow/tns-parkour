@@ -106,7 +106,8 @@ public class ArenaManager {
     public enum LocationType {
         START_LOCATION,
         CHECKPOINT_LOCATION,
-        END_LOCATION
+        END_LOCATION,
+        EXIT_LOCATION
     }
 
     private static class CacheKey {

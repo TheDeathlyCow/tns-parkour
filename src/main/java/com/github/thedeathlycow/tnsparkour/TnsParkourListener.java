@@ -35,6 +35,7 @@ public class TnsParkourListener implements Listener {
         interactWithParkour.register(this::startRun);
         interactWithParkour.register(this::hitCheckpoint);
         interactWithParkour.register(this::reachEnd);
+        interactWithParkour.register(this::pressExitButton);
     }
 
     @EventHandler
@@ -86,6 +87,22 @@ public class TnsParkourListener implements Listener {
         IntLocation location = new IntLocation(interactedWith.getLocation());
 
         interactWithParkour.execute(player, location);
+    }
+
+    private void pressExitButton(Player player, IntLocation buttonLocation) {
+        if (!playerArenas.containsKey(player)) {
+            return;
+        }
+
+        ArenaManager arenaManager = TnsParkour.getInstance().getArenaManager();
+        ParkourArena arena = arenaManager
+                .getArenaAtLocation(buttonLocation,
+                        (a) -> Collections.singleton(a.getExitButtonLocation()),
+                        ArenaManager.LocationType.EXIT_LOCATION);
+
+        if (arena != null) {
+            endRun(player, false);
+        }
     }
 
     private void reachEnd(Player player, IntLocation location) {
