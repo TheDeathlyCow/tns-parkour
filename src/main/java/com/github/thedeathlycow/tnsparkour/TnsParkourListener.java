@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -25,16 +25,24 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TnsParkourListener implements Listener {
 
-    private final Map<Player, ParkourArena> playerArenas = new HashMap<>();
+    private final Map<UUID, ParkourArena> playerArenas = new HashMap<>();
     private final TwoParamEventDelegate<Player, IntLocation> interactWithParkour = new TwoParamEventDelegate<>();
 
     public TnsParkourListener() {
         interactWithParkour.register(this::startRun);
         interactWithParkour.register(this::hitCheckpoint);
         interactWithParkour.register(this::reachEnd);
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        if (playerArenas.containsKey(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -59,7 +67,7 @@ public class TnsParkourListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (!playerArenas.containsKey(player)) {
+        if (!playerArenas.containsKey(player.getUniqueId())) {
             return;
         }
 
@@ -104,7 +112,7 @@ public class TnsParkourListener implements Listener {
     }
 
     private void pressExitButton(Player player, IntLocation buttonLocation) {
-        if (!playerArenas.containsKey(player)) {
+        if (!playerArenas.containsKey(player.getUniqueId())) {
             return;
         }
 
@@ -120,7 +128,7 @@ public class TnsParkourListener implements Listener {
     }
 
     private void reachEnd(Player player, IntLocation location) {
-        if (!playerArenas.containsKey(player)) {
+        if (!playerArenas.containsKey(player.getUniqueId())) {
             return;
         }
 
@@ -138,7 +146,7 @@ public class TnsParkourListener implements Listener {
     }
 
     private void hitCheckpoint(Player player, IntLocation location) {
-        if (!playerArenas.containsKey(player)) {
+        if (!playerArenas.containsKey(player.getUniqueId())) {
             return;
         }
 
@@ -168,7 +176,7 @@ public class TnsParkourListener implements Listener {
             return;
         }
 
-        playerArenas.put(player, arena);
+        playerArenas.put(player.getUniqueId(), arena);
         arena.getRunManager().startRun(player);
 
         String authors = arena.getAuthorsJoined();
@@ -178,8 +186,8 @@ public class TnsParkourListener implements Listener {
     }
 
     private void returnToCheckpoint(Player player) {
-        if (playerArenas.containsKey(player)) {
-            ParkourArena currArena = playerArenas.get(player);
+        if (playerArenas.containsKey(player.getUniqueId())) {
+            ParkourArena currArena = playerArenas.get(player.getUniqueId());
             currArena.getRunManager().fall(player);
             String msg = String.format("Returned to last checkpoint (added %.3f seconds)!",
                     ParkourRun.getTimeToAddOnFall() / 1000.0);
@@ -189,8 +197,8 @@ public class TnsParkourListener implements Listener {
     }
 
     private void returnToStart(Player player) {
-        if (playerArenas.containsKey(player)) {
-            ParkourArena arena = playerArenas.get(player);
+        if (playerArenas.containsKey(player.getUniqueId())) {
+            ParkourArena arena = playerArenas.get(player.getUniqueId());
             arena.getRunManager().restart(player);
 
             player.sendMessage(ChatColor.GREEN + "Returned to start!");
@@ -199,8 +207,8 @@ public class TnsParkourListener implements Listener {
     }
 
     private void endRun(Player player, boolean recordScore) {
-        if (playerArenas.containsKey(player)) {
-            ParkourArena currArena = playerArenas.remove(player);
+        if (playerArenas.containsKey(player.getUniqueId())) {
+            ParkourArena currArena = playerArenas.remove(player.getUniqueId());
             int time = currArena.getRunManager().completeRun(player, recordScore);
 
             if (recordScore) {
