@@ -35,7 +35,6 @@ public class TnsParkourListener implements Listener {
         interactWithParkour.register(this::startRun);
         interactWithParkour.register(this::hitCheckpoint);
         interactWithParkour.register(this::reachEnd);
-        interactWithParkour.register(this::pressExitButton);
     }
 
     @EventHandler
@@ -74,7 +73,22 @@ public class TnsParkourListener implements Listener {
     }
 
     @EventHandler
-    public void onInteractEvent(PlayerInteractEvent event) {
+    public void onRightClickBlock(PlayerInteractEvent event) {
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+        Player player = event.getPlayer();
+        Block interactedWith = event.getClickedBlock();
+        if (interactedWith == null) {
+            return;
+        }
+        IntLocation location = new IntLocation(interactedWith.getLocation());
+
+        pressExitButton(player, location);
+    }
+
+    @EventHandler
+    public void onPhysicalInteraction(PlayerInteractEvent event) {
         if (!event.getAction().equals(Action.PHYSICAL)) {
             return;
         }
