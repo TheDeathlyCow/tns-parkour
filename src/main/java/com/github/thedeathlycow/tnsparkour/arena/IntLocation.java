@@ -14,12 +14,20 @@ public class IntLocation {
     private final int x;
     private final int y;
     private final int z;
+    private final float yaw;
+    private final float pitch;
 
-    public IntLocation(final World world, final int x, final int y, final int z) {
+    public IntLocation(final World world, final int x, final int y, final int z, final float yaw, final float pitch) {
         this.world = world;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
+
+    public IntLocation(final World world, final int x, final int y, final int z) {
+        this(world, x, y, z, 0.f, 0.f);
     }
 
     public IntLocation(Location location) {
@@ -27,7 +35,7 @@ public class IntLocation {
     }
 
     public Location getAsLocation() {
-        return new Location(world, x, y, z);
+        return new Location(world, x, y, z, yaw, pitch);
     }
 
     public Location getAsLocationCentered() {
@@ -86,9 +94,19 @@ public class IntLocation {
             int y = object.get("posY").getAsInt();
             int z = object.get("posZ").getAsInt();
 
+            float yaw = 0.f;
+            float pitch = 0.f;
+            JsonElement rotation = object.get("rotation");
+            if (rotation != null) {
+                JsonObject rotObj = rotation.getAsJsonObject();
+                yaw = rotObj.get("yaw").getAsFloat();
+                pitch = rotObj.get("pitch").getAsFloat();
+            }
+
+
             World world = Bukkit.getWorld(worldName);
 
-            return new IntLocation(world, x, y, z);
+            return new IntLocation(world, x, y, z, yaw, pitch);
         }
     }
 }

@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.Objects;
 import java.util.logging.Level;
@@ -66,13 +65,6 @@ public final class TnsParkour extends JavaPlugin {
 
     public ArenaManager getArenaManager() {
         return ARENA_MANAGER;
-    }
-
-    public static Location getIntLocation(Location location) {
-        return new Location(location.getWorld(),
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ());
     }
 
     private void setDefaultConfig() {
